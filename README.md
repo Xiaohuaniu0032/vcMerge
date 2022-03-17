@@ -1,4 +1,6 @@
-# variantCallerMerge
+# vcMerge
+
+### 旧版variantCallerMerge已经不用
 
 ### 插件目的
 如果一张芯片上了多个新冠样本，为了检查哪些突变是共检出，哪些突变是只有少数样本检出，需要肉眼比较不同样本的VCF文件，比较耗时。
@@ -9,9 +11,9 @@
 
 1) 确定`/results/analysis/output/Home/<Report>/plugin_out/`目录下哪些目录是变异检测`*variantCaller*`相关的目录。变异检测有2个插件：`variantCaller_out.1619/`和`SARS_CoV_2_variantCaller_out.1529/`。其他插件目录不会统计。
 
-2）如果这个目录是variantCaller目录，检查这个目录下所有样本的`TSVC_variants.vcf`，如果`TSVC_variants.vcf`文件是新冠的VCF文件（根据VCF文件第一列CHROM是否为`2019-nCoV`判断。
+2）如果这个目录是variantCaller目录，检查这个目录下所有样本的`alleles.xls`，如果`alleles.xls`文件是新冠的vcf文件（根据文件第一列Chrom是否为`2019-nCoV`判断。
 
-3）合并这个目录下的所有新冠样本的VCF文件，输出文件名为`variantCaller_out.1257.TSVC_variants.merged.vcf.xls`或者`SARS_CoV_2_variantCaller_out.1529.TSVC_variants.merged.vcf.xls`。
+3）合并这个目录下的所有新冠样本的alleles.xls文件，输出文件名为`variantCaller_out.1257.TSVC_variants.merged.vcf.xls`或者`SARS_CoV_2_variantCaller_out.1529.TSVC_variants.merged.vcf.xls`。
 
 ### 输出文件格式
 ```
@@ -129,10 +131,10 @@ Chrom	Position	Ref	Variant	IonXpress_001	IonXpress_003	IonXpress_004	IonXpress_0
 
 > 点击蓝色链接下载即可。xls格式。
 
-![variantCallerMerge](https://github.com/Xiaohuaniu0032/variantCallerMerge/blob/main/variantCallerMerge.png)
+![variantCallerMerge](https://github.com/Xiaohuaniu0032/vcMerge/blob/main/variantCallerMerge.png)
 
 
 ### 插件安装
 
-1) 压缩`variantCallerMerge`目录为`.zip`文件：`zip -r variantCallerMerge.zip variantCallerMerge -x \*.git\*`
+1) 压缩`vcMerge`目录为`.zip`文件：`zip -r vcMerge.zip vcMerge -x \*.git\*`
 2) 在TS页面上传`.zip`文件进行安装：TS页面右上角小齿轮->Plugins->Install or Upgrade Plugin -> Selete File -> Upload and Install
