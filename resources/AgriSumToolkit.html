@@ -1,0 +1,1101 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <title>AgriSumToolkit</title>
+
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="scripts/slickgrid/slick.grid.css"/>
+    <link rel="stylesheet" href="scripts/slickgrid/lib/jquery-ui-1.10.2.custom/css/smoothness/jquery-ui-1.10.2.custom.min.css"/>
+    <link rel="stylesheet" href="scripts/lifegrid/lifegrid.css"/>
+    <link rel="stylesheet" href="/site_media/resources/bootstrap/css/bootstrap.min.css"/>
+    <link rel="stylesheet" href="/site_media/resources/styles/tb-layout.css"/>
+    <link rel="stylesheet" href="/site_media/resources/styles/tb-styles.min.css"/>
+    <link rel="stylesheet" href="/site_media/resources/bootstrap/css/bootstrap-responsive.min.css"/>
+    <link rel="stylesheet" href="scripts/lightbox/css/lightbox.css"/>
+    <link rel="stylesheet" href="/site_media/resources/font-awesome/css/font-awesome.min.css"/>
+    
+    <script type="text/javascript" src="/site_media/resources/jquery/jquery-1.8.2.js"></script>
+    <script type="text/javascript" src="/site_media/resources/jquery/jquery.cookie.js"></script>
+    <script type="text/javascript" src="/site_media/js/json2.min.js"></script>
+    <script type="text/javascript" src="/site_media/resources/bootstrap/js/bootstrap.min.js"></script>
+    <script type="text/javascript" src="scripts/lightbox/js/lightbox.js"></script>
+    <script src="scripts/slickgrid/lib/jquery-ui-1.10.2.custom/js/jquery-ui-1.10.2.custom.min.js"></script>
+    <script src="scripts/slickgrid/lib/jquery.event.drag-2.0.min.js"></script>
+    <script src="scripts/slickgrid/slick.core.js"></script>
+    <script src="scripts/slickgrid/slick.grid.js"></script>
+    
+    <style>
+        div#runsummary .span3, div#runsummary .span1 {
+            border-bottom: 1px dashed;
+            padding: 5px 0;
+        }
+        
+        .mt1{
+            margin-top: 1em;
+        }
+        
+        .mt2{
+            margin-top: 2em;
+        }
+        
+        .mb5{
+            margin-bottom: 5em;
+        }
+        
+        .main .nav ~ .tab-content{
+            padding: 0;
+            border: none;
+        }
+        
+        .carousel a:link{
+            font-size: 60px;
+            font-weight: 100;
+        }
+        
+        #runsummary h4{  
+            font-weight: bold;
+            color: orange;
+        }
+        
+        .tab-content > .tab-pane{
+            margin-top: 2em;
+        }
+        
+        .report-button{
+            margin-top:2em;
+            margin-left:0;
+        }
+        
+        .blueColor, .sub-nav li a{
+            color: #08c;
+        }
+        
+        .label{
+            font-size: 1em;
+            /*font-weight: bold;*/
+            line-height: 1.2em;
+            padding: 6px 8px;
+        }
+        
+        a.tshelp{
+            font-size: 1.3em;
+        }
+    </style>
+</head>
+    
+<body>
+    <div class="header">
+        <div class="container-fluid">
+            <div class="row-fluid">
+                <div class="span12">
+                    <h1 class="logo pull-left">AgriSumToolkit</h1>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="sub-nav">
+        <div class="container-fluid">
+            <div class="row-fluid">
+                <div class="span12">
+                    <ul class="nav">
+                        <li><a id="nav-report-link" class="blueColor" href="#">&larr; Go back to <span id='nav-report-name'></span></a></li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="main mb5">
+        <div class="container-fluid">
+            <div class="row">
+                <div class="span6">
+                    <form class="form-horizontal">
+                        <div class="control-group">
+                            <label class="control-label" for="select-cid">Coverage Analysis</label>
+                            <div class="controls">
+                                <div id="select-cid"></div>
+                            </div>
+                        </div>
+                        <div class="control-group">
+                            <label class="control-label" for="select-vid">Variant Caller</label>
+                            <div class="controls">
+                                <div id="select-vid"></div>
+                            </div>
+                        </div>
+                        <div class="control-group hide" id="w-fid">
+                            <label class="control-label" for="select-vid">HID fDiagnostics Tool</label>
+                            <div class="controls">
+                                <div id="select-fid"></div>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+                <div class="span2 report-button">
+                        <button class="btn btn-primary show-report" type="button" style="display: none;">Update</button>
+                </div>
+            </div>
+            <div class="row">
+                <div class="span12">
+                    <div class="alert alert-error report-error" style="display:none">
+                        
+                    </div>
+                    <ul class="nav nav-tabs">
+                        <li class="active"><a href="#runsummary" data-toggle="tab" data-prefix="Run_Summary">Run Summary</a></li>
+                        <!--<li><a href="#gbsummary" data-toggle="tab" data-prefix="AgriSeq_GBS_Summary">AgriSeq GBS Summary</a></li>-->
+                        <li><a href="#gmatrix" data-toggle="tab" data-prefix="Genotype_Matrix">Genotype Matrix</a></li>
+                        <li><a href="#topbottom" data-toggle="tab" data-prefix="TOP_BOTTOM">TOP/BOT</a></li>
+                        <li><a href="#markercall" data-toggle="tab" data-prefix="Marker_Call_Data">Marker Call Data </a></li>
+                    </ul>
+                    <div class="tab-content">
+                        <div class="tab-pane active" id="runsummary">
+                            <div class="row loading" style="display:none">
+                                <div class="span12">
+                                    Please wait while your report is being generated...<br>
+                                    <img style='height:30px;width:30px;' src='/site_media/resources/bootstrap/img/loading.gif'/>
+                                </div>
+                            </div>
+                            <div class="row" id="runsummary-section">
+                                <div class="span4">
+                                    <h4>Panel Summary</h4>
+                                    <div class="row">
+                                        <div class="span3">
+                                            <div>
+                                                <div>
+                                                  <div>
+                                                    <a class="accordion-toggle" data-toggle="collapse" href="#collapseMarkerTypes">Number of Markers <i class="fa fa-caret-down" aria-hidden="true"></i></a>
+                                                  </div>
+                                                </div>
+                                            </div>
+                                            <div id="collapseMarkerTypes" class="accordion-body collapse">
+                                                <div class="accordion-inner">
+                                                    <table class="table table-condensed">
+                                                        <tr>
+                                                            <td>SNP</td>
+                                                            <td><span data-txt-src="/Number SNP Markers"></span></td>
+                                                        </tr>
+                                                        <tr>
+                                                            <td>DEL</td>
+                                                            <td><span data-txt-src="/Number DEL Markers"></span></td>
+                                                        </tr>
+                                                        <tr>
+                                                            <td>INS</td>
+                                                            <td><span data-txt-src="/Number INS Markers"></span></td>
+                                                        </tr>
+                                                        <tr>
+                                                            <td>MNP</td>
+                                                            <td><span data-txt-src="/Number MNP Markers"></span></td>
+                                                        </tr>
+                                                        <tr>
+                                                            <td>COMPLEX</td>
+                                                            <td><span data-txt-src="/Number COMPLEX Markers"></span></td>
+                                                        </tr>
+                                                    </table>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="span1"><span class="badge badge-inverse" data-txt-src="/Number Markers"></span></a></div>
+                                    </div>
+                                    <div class="row">
+                                        <div class="span3">Number of Amplicons</div>
+                                        <div class="span1"><span class="badge badge-inverse" data-txt-src="/Number Amplicons"></span></div>
+                                    </div>
+                                    <div class="row">
+                                        <div class="span3">Mean Coverage</div>
+                                        <div class="span1"><span class="badge badge-inverse" data-txt-src="/Mean Coverage"></span></div>
+                                    </div>
+                                    <div class="row">
+                                        <div class="span3">Mean Call Rate (Mean CR)</div>
+                                        <div class="span1"><span class="badge badge-inverse" data-txt-src="/Markers CR"></span></div>
+                                    </div>
+                                    
+                                    <h4 class="mt2">Sample Summary</h4>
+                                    <div class="row">
+                                        <div class="span3">Samples Run</div>
+                                        <div class="span1"><span class="badge badge-inverse" data-txt-src="/Samples Run"></span></div>
+                                    </div>
+                                    <div class="row">
+                                        <div class="span3"># Samples = 100% CR</div>
+                                        <div class="span1"><span class="badge badge-success" data-txt-src="/# Samples = 100% CR"></span></div>
+                                    </div>
+                                    <div class="row">
+                                        <div class="span3"># Samples 98% - 100% CR</div>
+                                        <div class="span1"><span class="badge badge-success" data-txt-src="/# Samples 98% - 100% CR"></span></div>
+                                    </div>
+                                    <div class="row">
+                                        <div class="span3"># Samples 95% - 98% CR</div>
+                                        <div class="span1"><span class="badge badge-success" data-txt-src="/# Samples 95% - 98% CR"></span></div>
+                                    </div>
+                                    <div class="row">
+                                        <div class="span3"># Samples 90% - 95% CR</div>
+                                        <div class="span1"><span class="badge badge-success" data-txt-src="/# Samples 90% - 95% CR"></span></div>
+                                    </div>
+                                    <div class="row">
+                                        <div class="span3"># Samples 80% - 90% CR</div>
+                                        <div class="span1"><span class="badge badge-success" data-txt-src="/# Samples 80% - 90% CR"></span></div>
+                                    </div>
+                                    <div class="row">
+                                        <div class="span3"># Samples 50% - 80% CR</div>
+                                        <div class="span1"><span class="badge badge-warning" data-txt-src="/# Samples 50% - 80% CR"></span></div>
+                                    </div>
+                                    <div class="row">
+                                        <div class="span3"># Samples 10% - 50% CR</div>
+                                        <div class="span1"><span class="badge badge-warning" data-txt-src="/# Samples 10% - 50% CR"></span></div>
+                                    </div>
+                                    <div class="row">
+                                        <div class="span3">
+                                            <div id="accordion2">
+                                                <div>
+                                                  <div>
+                                                    <a class="accordion-toggle" data-toggle="collapse" data-parent="#accordion1" href="#collapseOne"># Samples 0% - 10% CR <i class="fa fa-caret-down" aria-hidden="true"></i></a>
+                                                  </div>
+                                                </div>
+                                            </div>
+                                            <div id="collapseOne" class="accordion-body collapse">
+                                                <div class="accordion-inner psamples10">
+                                                    
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="span1"><span class="badge badge-important" data-txt-src="/# Samples 0% - 10% CR"></span></div>
+                                    </div>
+                                    <div class="row">
+                                        <div class="span3">
+                                            <div id="accordion2">
+                                                <div>
+                                                  <div>
+                                                    <a class="accordion-toggle" data-toggle="collapse" data-parent="#accordion2" href="#collapseTwo"># Samples = 0% CR <i class="fa fa-caret-down" aria-hidden="true"></i></a>
+                                                  </div>
+                                                </div>
+                                            </div>
+                                            <div id="collapseTwo" class="accordion-body collapse">
+                                                <div class="accordion-inner psamples0">
+                                                    
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="span1"><span class="badge badge-important" data-txt-src="/# Samples = 0% CR"></span></div>
+                                    </div>
+                                    
+                                    <h4 class="mt2">Marker Summary</h4>
+                                    <div class="row">
+                                        <div class="span3">Number of Markers</div>
+                                        <div class="span1"><span class="badge badge-inverse" data-txt-src="/Number Markers"></span></div>
+                                    </div>
+                                    <div class="row">
+                                        <div class="span3"># Markers = 100% CR</div>
+                                        <div class="span1"><span class="badge badge-success" data-txt-src="/# Markers = 100% CR"></span></div>
+                                    </div>
+                                    <div class="row">
+                                        <div class="span3"># Markers 98% - 100% CR</div>
+                                        <div class="span1"><span class="badge badge-success" data-txt-src="/# Markers 98% - 100% CR"></span></div>
+                                    </div>
+                                    <div class="row">
+                                        <div class="span3"># Markers 95% - 98% CR</div>
+                                        <div class="span1"><span class="badge badge-success" data-txt-src="/# Markers 95% - 98% CR"></span></div>
+                                    </div>
+                                    <div class="row">
+                                        <div class="span3"># Markers 90% - 95% CR</div>
+                                        <div class="span1"><span class="badge badge-success" data-txt-src="/# Markers 90% - 95% CR"></span></div>
+                                    </div>
+                                    <div class="row">
+                                        <div class="span3"># Markers 80% - 90% CR</div>
+                                        <div class="span1"><span class="badge badge-success" data-txt-src="/# Markers 80% - 90% CR"></span></div>
+                                    </div>
+                                    <div class="row">
+                                        <div class="span3"># Markers 50% - 80% CR</div>
+                                        <div class="span1"><span class="badge badge-warning" data-txt-src="/# Markers 50% - 80% CR"></span></div>
+                                    </div>
+                                    <div class="row">
+                                        <div class="span3"># Markers 10% - 50% CR</div>
+                                        <div class="span1"><span class="badge badge-warning" data-txt-src="/# Markers 10% - 50% CR"></span></div>
+                                    </div>
+                                    <div class="row">
+                                        <div class="span3">
+                                            <div id="accordion2">
+                                                <div>
+                                                  <div>
+                                                    <a class="accordion-toggle" data-toggle="collapse" data-parent="#accordion1" href="#collapseThree"># Markers 0% - 10% CR <i class="fa fa-caret-down" aria-hidden="true"></i></a>
+                                                  </div>
+                                                </div>
+                                            </div>
+                                            <div id="collapseThree" class="accordion-body collapse">
+                                                <div class="accordion-inner pmarkers10">
+                                                    
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="span1"><span class="badge badge-important" data-txt-src="/# Markers 0% - 10% CR"></span></div>
+                                    </div>
+                                    <div class="row">
+                                        <div class="span3">
+                                            <div id="accordion2">
+                                                <div>
+                                                  <div>
+                                                    <a class="accordion-toggle" data-toggle="collapse" data-parent="#accordion1" href="#collapseFour"># Markers = 0% CR <i class="fa fa-caret-down" aria-hidden="true"></i></a>
+                                                  </div>
+                                                </div>
+                                            </div>
+                                            <div id="collapseFour" class="accordion-body collapse">
+                                                <div class="accordion-inner pmarkers0">
+                                                    
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="span1"><span class="badge badge-important" data-txt-src="/# Markers = 0% CR"></span></div>
+                                    </div>
+                                </div>
+                                <div class="span8">
+                                    
+                                    <div id="myCarousel" class="carousel slide">
+                                        <!-- Carousel items -->
+                                        <div class="carousel-inner">
+                                          <div class="active item">
+                                            <span class="load-img" data-src="1.png"></span>
+                                          </div>
+                                          <div class="item">
+                                            <span class="load-img" data-src="2.png"></span>
+                                          </div>
+                                          <div class="item">
+                                            <span class="load-img" data-src="3.png"></span>
+                                          </div>
+                                          <div class="item">
+                                            <span class="load-img" data-src="4.png"></span>
+                                          </div>
+                                          <div class="item">
+                                            <span class="load-img" data-src="5.png"></span>
+                                          </div>
+                                        </div>
+                                        <!-- Carousel nav -->
+                                        <a class="carousel-control left" href="#myCarousel" data-slide="prev">&lsaquo;</a>
+                                        <a class="carousel-control right" href="#myCarousel" data-slide="next">&rsaquo;</a>
+                                    </div>
+                                </div>
+                            </div>
+                                    
+                        </div>
+                        <!--<div class="tab-pane" id="gbsummary">
+                            <div class="row loading" style="display:none">
+                                <div class="span12">
+                                    Please wait while your report is being generated...<br>
+                                    <img style='height:30px;width:30px;' src='/site_media/resources/bootstrap/img/loading.gif'/>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="span12">
+                                    <div class="row">
+                                        <div class="span2">
+                                            <span class="label label-success"><i class="fa fa-file-excel-o" aria-hidden="true"></i> Combo Coverage Data</span>
+                                        </div>
+                                        <div class="span10">
+                                            <button type="button" class="btn btn-mini btn-primary" data-loading-text="Loading..." onclick="DownloadSummary('ComboMetaVariantCoverageData')"><i class="fa fa-download" aria-hidden="true"></i> Download</button>
+                                        </div>
+                                    </div>
+                                    <div class="row mt1">
+                                        <div class="span2">
+                                             <span class="label label-success"><i class="fa fa-file-excel-o" aria-hidden="true"></i> All Variants Data</span>
+                                        </div>
+                                        <div class="span10">
+                                            <button type="button" class="btn btn-mini btn-primary" data-loading-text="Loading..." onclick="DownloadSummary('all_variants')"><i class="fa fa-download" aria-hidden="true"></i> Download</button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>-->
+                        <div class="tab-pane" id="gmatrix">
+                            <div class="row loading" style="display:none">
+                                <div class="span12">
+                                    Please wait while your report is being generated...<br>
+                                    <img style='height:30px;width:30px;' src='/site_media/resources/bootstrap/img/loading.gif'/>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="span12">
+                                    <div class="row">
+                                        <div class="span3">
+                                            <span class="label label-success"><i class="fa fa-file-excel-o" aria-hidden="true"></i> GBS Matrix File</span> <a class='tshelp' href="javascript:void(0)" data-toggle="popover" data-title="GBS Matrix File" data-content="Genotype alleles given for each sample and marker reported in marker by sample matrix" data-placement="top"><i class="fa fa-question-circle" aria-hidden="true"></i></a>
+                                        </div>
+                                        <div class="span9">
+                                            <button type="button" class="btn btn-primary" data-loading-text="Loading..." onclick="DownloadMatrix()"><i class="fa fa-download" aria-hidden="true"></i> Download</button>
+                                        </div>
+                                    </div>                                    
+                                </div>
+                            </div>
+                        </div>
+                        <div class="tab-pane" id="topbottom">
+                            <div class="row loading" style="display:none">
+                                <div class="span12">
+                                    Please wait while your report is being generated...<br>
+                                    <img style='height:30px;width:30px;' src='/site_media/resources/bootstrap/img/loading.gif'/>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="span12">
+                                    <div class="row">
+                                        <div class="span3">
+                                            <span class="label label-success"><i class="fa fa-file-excel-o" aria-hidden="true"></i> TOP Output</span> <a class='tshelp' href="javascript:void(0)" data-toggle="popover" data-title="TOP Output" data-content="This is the genotyping output convention ISAG uses. At a given SNP, a strand is called TOP and the other BOT. This definition depends on the alleles of the SNP or, when necessary, on the adjacent sequences." data-placement="top"><i class="fa fa-question-circle" aria-hidden="true"></i></a>
+                                        </div>
+                                        <div class="span9">
+                                            <button type="button" class="btn btn-primary" data-loading-text="Loading..." onclick="DownloadTopBottom('top')"><i class="fa fa-download" aria-hidden="true"></i> Download</button>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="row mt1">
+                                        <div class="span3">
+                                            <span class="label label-success"><i class="fa fa-file-excel-o" aria-hidden="true"></i> TOP/BOT Output</span> <a class='tshelp' href="javascript:void(0)" data-toggle="popover" data-title="TOP/BOT Output" data-content="Top (TOP) and bottom (BOT) designations based on the polymorphism itself, or the contextual surrounding sequence" data-placement="top"><i class="fa fa-question-circle" aria-hidden="true"></i></a>
+                                        </div>
+                                        <div class="span9">
+                                            <button type="button" class="btn btn-primary" data-loading-text="Loading..." onclick="DownloadTopBottom('topbottom')"><i class="fa fa-download" aria-hidden="true"></i> Download</button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="tab-pane" id="markercall">
+                            <div class="row loading" style="display:none">
+                                <div class="span12">
+                                    Please wait while your report is being generated...<br>
+                                    <img style='height:30px;width:30px;' src='/site_media/resources/bootstrap/img/loading.gif'/>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="span12">
+                                    <div id="MarkerGridError" style="display:none; color:#b94a48"></div>
+                                    <div id="MarkerGrid" style="width:400px;height:500px;display:none" class="grid-body"></div>
+                                    <br>
+                                    <button id="MarkerGridExport" style="display:none" type="button" class="btn btn-primary" data-loading-text="Loading..." onclick="ExportFromGrid('_marker_call_data.txt')"><i class="fa fa-download" aria-hidden="true"></i> Export</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+<script>
+window.AST = {};
+AST.startplugin = get_json("startplugin.json")
+var cur_href = window.location.href;
+var cur_dir = cur_href.substring(0, cur_href.lastIndexOf('/')) + "/";
+var run_name = cur_href.match(/\/Home\/(.*)\/plugin_out\//)[1]
+var report_id = run_name.match(/_(\d+)$/)[1]
+var just_run_name = run_name.replace("_"+report_id,"")
+var analysis_path = "/results/analysis" + cur_href.match(/(\/output\/Home\/.*\/)AgriSumToolkit.html/)[1]
+var meta_file_data = null
+var activeTab = null;
+var run_name = AST.startplugin.expmeta.run_name
+var markerDataChecked = []
+var markerDataChecked_data = []
+var markerData = []
+var markerDataGrid;
+var summary_prefix_tab = 'Run_Summary'
+var pluginName = AST.startplugin.runinfo.plugin_name
+var pluginUrl = window.location.protocol + "//" + window.location.host + "/plugins/" + pluginName;
+var extend = "/rundb/api/v1/plugin/"+pluginName+"/extend/"
+
+$('#nav-report-link').attr("href","/report/"+report_id)
+$('#nav-report-name').html(just_run_name)
+
+
+var meta_next = "/rundb/api/v1/pluginresult/?format=json&result=" + report_id
+var select_vid = $('<select name="vid" class="RunParams"/>');
+var select_cid = $('<select name="cid" class="RunParams"/>');
+var select_fid = $('<select name="fid" class="RunParams"/>');
+while (meta_next) {
+    $.ajax({
+        type: 'GET',
+        url: meta_next,
+        async: false,
+        contentType: "application/json; charset=utf-8",
+        success: function(data) {
+            //console.log(data.objects)
+            for (var obj in data.objects) {
+                //console.log(data.objects[obj].pluginName)
+                if (data.objects[obj].state == "Completed"){
+					if (data.objects[obj].pluginName == 'variantCaller') {
+						$('<option />', {
+							value: data.objects[obj].id,
+							text: "Variant Caller (#" + data.objects[obj].id + ")"
+						}).appendTo(select_vid);
+					}
+					
+					if (data.objects[obj].pluginName == 'coverageAnalysis') {
+						$('<option />', {
+							value: data.objects[obj].id,
+							text: "Coverage Analysis (#" + data.objects[obj].id + ")"
+						}).appendTo(select_cid);
+					}
+                    
+                    if (data.objects[obj].pluginName == 'HIDfDiagnosticsTool-RC2') {
+                    $('<option />', {
+							value: data.objects[obj].id,
+							text: "HIDfDiagnosticsTool Analysis (#" + data.objects[obj].id + ")"
+						}).appendTo(select_fid);
+					}
+                }
+            }
+            meta_next = data.meta.next
+        },
+        dataType: "json"
+    });
+}
+select_vid.appendTo('#select-vid');
+select_cid.appendTo('#select-cid');
+select_fid.appendTo('#select-fid');
+
+if (select_cid[0].length > 0){
+    $('#w-cid').removeClass('hide')
+}
+
+if (select_vid[0].length > 0){
+    $('#w-vid').removeClass('hide')
+}
+
+if (select_fid[0].length > 0){
+    $('#w-fid').removeClass('hide')
+}
+
+jQuery( document ).ready(function($) {
+    
+    //$('a[data-toggle="tab"]').on('shown', function (e) {
+    //    prefix_tab = $(e.target).data('prefix')
+    //    prefix = prefix_tab+"_"+selected_vid+"_"+selected_cid+"_"+selected_fid;
+    //})
+    $('.show-report').removeClass('btn-primary').attr('disabled',true)
+    
+    if ( $("select[name='cid'] option").length == 1 && $("select[name='vid'] option").length == 1 ){
+        $('.show-report').hide()
+    }else{
+        $('.show-report').show()
+    }
+    
+    $("[data-toggle=popover]").popover();
+    
+    $("#meta-file-submit").change(readFile);        
+    
+    $( ".RunParams" ).change(function() {
+        //console.log($( this ).attr('name'),$( this ).val())
+        //LoadReport(false)
+        $('.show-report').addClass('btn-primary').attr('disabled',false)
+        
+        if (selected_cid == $("select[name='cid']").val() && selected_vid == $("select[name='vid']").val()){
+            $('.show-report').removeClass('btn-primary').attr('disabled',true)
+        }
+    });
+    
+    $( ".show-report" ).click(function() {
+        $('.show-report').removeClass('btn-primary').attr('disabled',true)
+        LoadReport(false)
+    })
+    
+    $('.carousel').carousel({
+        interval: 10000
+    })
+    
+    //$( ".RunParams" ).trigger('change')
+    LoadReport(true)
+    
+    $( "#meta-file-submit" ).submit(function( event ) {
+        event.preventDefault();
+
+        $("#meta-file-submit-button").prop("disabled", true);
+        
+        var data = {
+            "metaData": meta_file_data,
+            "results_dir": analysis_path,
+            'vid': selected_vid,
+            'cid': selected_cid,
+            'fid': selected_fid,
+            'prefix': prefix,
+            'report_id': report_id
+        };
+        
+        $.ajax({
+            type: "POST",
+            data: JSON.stringify(data),
+            contentType: false,
+            cache: false,
+            processData:false,
+            //async: false,
+            //enctype: 'multipart/form-data',
+            url: extend+"RunAgSeqGBSummary/?format=json",
+            success: function (data) {
+                //console.log("SUCCESS : ", data);
+                $("#meta-file-submit-button").prop("disabled", false);
+                $("#meta-file-submit").trigger('reset');
+        
+            },
+            error: function (e) {
+                //console.log("ERROR : ", e);
+                $("#meta-file-submit-button").prop("disabled", false);
+        
+            }
+        });
+    });
+});
+
+function LoadReport(first){
+    DefineParams()
+    if (!first){
+        var file_path = analysis_path+overall_report+".report"
+        var file_url = cur_dir+overall_report+".report"
+        urlExists(file_path, function(exists){
+            if (!exists){
+                isReportAvailable()
+            }else{
+                //console.log("Report exist!")
+                $.get( file_url, function( data ) {
+                    if (data == 1){
+                        LoadReportComponents()
+                    }else{
+                        //let's check the status
+                        isReportAvailable()
+                    }
+                })
+            }
+        })
+    }else{
+        LoadReportComponents()
+    }
+}
+
+function LoadReportComponents(){
+    //console.log("Loading the report..."+prefix)
+    ResetReport()
+    PrepareDataText()
+    LoadTheImages()
+    PreparePoorPerformers()
+    PrepareMarkerData()
+    $('.tab-pane > .row:nth-child(1)').hide()
+    $('.tab-pane > .row:nth-child(2)').show()
+}
+
+function ResetReport(){
+    $.each( $('[data-txt-src]'), function( key, value ) {
+        $(value).html('')
+    })
+    $('.pmarkers0').html('')
+    $('.pmarkers10').html('')
+    $('.psamples0').html('')
+    $('.psamples10').html('')
+}
+
+function DefineParams(){
+    $('.tab-pane > .row:nth-child(1)').show()
+    $('.tab-pane > .row:nth-child(2)').hide()
+                
+    selected_vid = $("select[name='vid']").val() != null ? $("select[name='vid']").val() : '';
+    selected_cid = $("select[name='cid']").val() != null ? $("select[name='cid']").val() : '';
+    selected_fid = $("select[name='fid']").val() != null ? $("select[name='fid']").val() : '';
+    //prefix_tab = $('.nav-tabs').find('.active').find('a').data('prefix')
+    prefix = summary_prefix_tab+"_"+selected_vid+"_"+selected_cid+"_"+selected_fid;
+    overall_report = 'AgriSumToolkit_'+selected_vid+'_'+selected_cid
+    $('.print_selected_vid').html(selected_vid);
+    $('.print_selected_cid').html(selected_cid);
+}
+
+function LoadTheImages(){
+    $.each( $('.load-img'), function( key, value ) {
+        LoadIt($(value))
+    });
+}
+
+function PrepareDataText(){
+    var data_arr = []
+    var file_url = cur_dir+prefix+".txt"
+    var file_path = analysis_path+prefix+".txt"
+    
+    urlExists(file_path, function(exists){
+        if (exists){
+            $.get( file_url, function( data ) {
+                $.each( data.split("\n"), function( key, value ) {
+                    if (value != ""){
+                        var row_arr = value.split("\t")
+                        var key1 = row_arr[0]
+                        var value1 = row_arr[1]
+                        data_arr[key1] = value1
+                    }
+                })
+                
+                $.each( $('[data-txt-src]'), function( key, value ) {
+                    var src = $(value).data('txt-src')
+                    var src_array = src.split("/")
+                    
+                    var suffix = src_array[0]
+                    var field = src_array[1]
+                    $(value).html(data_arr[field])
+                })
+            });
+        }else{
+            $('.report-error').show()
+            $('.report-error').html('<i class="fa fa-exclamation-triangle"></i> Report completed with errors. Please check the plugin log for more details')
+        }
+    })
+}
+
+function PreparePoorPerformers(){
+    $.each( $(["samples","markers"]), function( type_key, type_value  ) {
+        
+        var file_path = analysis_path+prefix+"_poor_"+type_value+".txt"
+        urlExists(file_path, function(exists){
+            if (exists){
+                $.get( cur_dir+prefix+"_poor_"+type_value+".txt", function( data ) {
+                    var pMarkers0 = $('<ul/>').addClass('namedlist');
+                    var pMarkers10 = $('<ul/>').addClass('namedlist');
+                    $.each( data.split("\n"), function( key, value ) {
+                        //console.log(key,value.split("\t"))
+                        if (value != ""){
+                            var row_arr = value.split("\t")
+                            var key1 = row_arr[0]
+                            var value1 = row_arr[1]
+                            var value2 = row_arr[2]
+                            if (value2 == 0){
+                                var li = $('<li/>')
+                                .text(key1)
+                                .appendTo(pMarkers0);
+                            }else{
+                                var li = $('<li/>')
+                                .text(key1)
+                                .appendTo(pMarkers10);
+                            }
+                        }
+                    })
+                    //console.log(pMarkers0,pMarkers10)
+                    pMarkers0.appendTo($('.p'+type_value+'0'))
+                    pMarkers10.appendTo($('.p'+type_value+'10'))
+                });
+            }else{
+                $('.report-error').show()
+                $('.report-error').html('<i class="fa fa-exclamation-triangle"></i> Report completed with errors. Please check the plugin log for more details')
+            }
+        })
+    })
+}
+
+function PrepareMarkerData(){
+    var file_path = analysis_path+prefix+"_marker_call_data.txt"
+    urlExists(file_path, function(exists){
+        if (exists){
+            $("#MarkerGrid").show()
+            $("#MarkerGridExport").show()
+            $.get( cur_dir+prefix+"_marker_call_data.txt", function( data ) {
+                var columns = [
+                  {id: "id", field: "id", width: 20, minWidth: 20, sortable: false, name: "<input id='checkall' type='checkbox'>", toolTip: "Select the variant for export", formatter: CheckBox},
+                  {id: "allele", name: "Allele Name", field: "allele", width: 120},
+                  {id: "mean_depth", name: "Mean Depth", field: "mean_depth", sortable: true, formatter: Fixed1Format},
+                  {id: "call_rate", name: "% Call Rate", field: "call_rate", sortable: true, formatter: PercentFormatAF}
+                ];
+                var options = {
+                    editable: true,
+                    autoEdit: false,
+                    enableCellNavigation: true,
+                    multiColumnSort: true,
+                    forceFitColumns: true,
+                    syncColumnCellResize: true,
+                    //enableAsyncPostRender: true,
+                    //asyncPostRenderDelay: 0
+                };
+                var i = 0;
+                $.each( data.split("\n"), function( key, value ) {
+                    //console.log(key,value.split("\t"))
+                    if (i>0 & value != ""){
+                        var row_arr = value.split("\t")
+                        markerData[i-1] = {
+                            id: i,
+                            allele: row_arr[0],
+                            mean_depth: row_arr[1],
+                            call_rate: row_arr[2]
+                        }
+                    }
+                    i++
+                })
+                markerDataGrid = new Slick.Grid("#MarkerGrid", markerData, columns, options);
+                markerDataGrid.onSort.subscribe(function (e, args) {
+                    var cols = args.sortCols;
+                    markerData.sort(function (dataRow1, dataRow2) {
+                      for (var i = 0, l = cols.length; i < l; i++) {
+                        var field = cols[i].sortCol.field;
+                        var sign = cols[i].sortAsc ? 1 : -1;
+                        var value1 = parseFloat(dataRow1[field]), value2 = parseFloat(dataRow2[field]);
+                        var result = (value1 == value2 ? 0 : (value1 > value2 ? 1 : -1)) * sign;
+                        if (result != 0) {
+                          return result;
+                        }
+                      }
+                      return 0;
+                    });
+                    markerDataGrid.invalidate();
+                    markerDataGrid.render();
+                });
+            });
+        }else{
+            $("#MarkerGridError").show()
+            $("#MarkerGridError").html('<i class="fa fa-exclamation-triangle"></i> A problem occured generating the grid. Please check the plugin log for more details')
+        }
+    })
+}
+
+function LoadIt(thiss){
+    var src = thiss.data('src')
+    var http = new XMLHttpRequest();
+    var url = cur_dir+prefix+"_"+src
+    var path = analysis_path+prefix+"_"+src
+    
+    urlExists(path, function(exists){
+        if (exists){
+            var a = $('<a>')
+            a.attr('href',url)
+            a.attr('data-lightbox','run-summary')
+            
+            var img = $('<img>')
+            img.attr('src',url)
+            img.attr('class','img-fluid')
+            
+            a.append(img)
+            
+            thiss.html(a)
+        }else{
+            thiss.html('Image failed to load. Please check the plugin log for more details')
+        }
+    });
+}
+
+function isReportAvailable(){
+    //var report_prefix = "Report_"+selected_vid+"_"+selected_cid+"_"+selected_fid;
+    var report_prefix = overall_report;
+    var params = {
+        'report': report_prefix,
+        'results_dir': analysis_path,
+        'vid': selected_vid,
+        'cid': selected_cid,
+        'fid': selected_fid
+    };
+    $.ajax({
+        type: 'GET',
+        url: extend+"reportAvailable/?"+$.param( params ),
+        async: false,
+        contentType: "application/json; charset=utf-8",
+        success: function(data){
+            //console.log((new Date).getSeconds(),data)
+            if (data.status == 'Completed'){
+                LoadReport(false)
+            }else if (data.status == 'job is running'){
+                setTimeout(function(){ LoadReport(false) }, 15000);
+            }else if(data.status == false || data.status == -1){
+                //probably API failed, so query again
+                setTimeout(function(){ LoadReport(false) }, 5000);
+            }
+        },
+        error: function(data){
+            if (data.error_message == "Sorry, this request could not be processed. Please try again later."){
+                setTimeout(function(){ LoadReport(false) }, 5000);
+            }
+        },
+        dataType: "json"
+    });
+}
+
+function get_json(file_name) {
+    //get the startplugin json
+
+    var startplugin = {};
+
+    var startplugin_url = file_name;
+    
+    var startplugin = $.ajax({
+        dataType: "json",
+        async: false,
+        url: startplugin_url
+    });
+
+    startplugin.done(function (data) {
+        startplugin = data;
+    });
+
+    return startplugin;
+
+}
+
+var urlExists = function(path, callback) {
+    
+    if ( ! $.isFunction(callback)) {
+       throw Error('Not a valid callback');
+    }
+    
+    $.ajax({
+        type: 'GET',
+        url: extend+"fileExist/?path="+path,
+        async: false,
+        contentType: "application/json; charset=utf-8",
+        success: callback,
+        error: callback,
+        dataType: "json"
+    });   
+}
+
+function readFile (evt) {
+    var files = evt.target.files;
+    var file = files[0];           
+    var reader = new FileReader();
+    reader.onload = function(event) {
+      meta_file_data = event.target.result;            
+    }
+    reader.readAsText(file)
+}
+
+function DownloadMatrix(){
+    var matrixUrl= cur_dir+selected_vid+'-'+run_name+"-Matrix.xls"
+    var matrixPath = analysis_path+selected_vid+'-'+run_name+"-Matrix.xls"
+    var matrixName= selected_vid+'-'+run_name+"-Matrix.xls"
+    
+    urlExists(matrixPath, function(exists){
+        if (exists){
+            downloadURI(matrixUrl,matrixName)
+        }else{
+            ErrorModal("A problem occured downloading the file. Please check the plugin log for more details")
+        }
+    })
+}
+
+function DownloadTopBottom(type){
+    var matrixUrl= cur_dir+selected_vid+'-'+run_name+"-Matrix."+type+".xls"
+    var matrixPath = analysis_path+selected_vid+'-'+run_name+"-Matrix."+type+".xls"
+    var matrixName= selected_vid+'-'+run_name+"-Matrix."+type+".xls"
+    
+    urlExists(matrixPath, function(exists){
+        if (exists){
+            downloadURI(matrixUrl,matrixName)
+        }else{
+            ErrorModal("A problem occured downloading the file. Please check the plugin log for more details")
+        }
+    })
+}
+
+function DownloadSummary(path){
+    suffix = 'AgriSeqGBSummary_'+selected_vid+'_'+selected_cid
+    url= cur_dir+suffix+"/"+suffix+"_"+path+".txt"
+    name= suffix+"_"+path+".xls"
+    downloadURI(url,name)
+}
+
+function downloadURI(uri, name) 
+{
+    var link = document.createElement("a");
+    link.download = name;
+    link.href = uri;
+    link.click();
+}
+
+function PercentFormatAF(row, cell, value, columnDef, dataContext) {
+    return '<div style="text-align:right">' + parseFloat(value*100).toFixed(2) + " %</div>";
+}
+
+function Fixed1Format(row, cell, value, columnDef, dataContext) {
+    return '<div style="text-align:right">' + parseFloat(value).toFixed(1) + "</div>";
+}
+
+function CheckBox(row, cell, value, columnDef, dataContext) {
+    if ($.inArray(value, markerDataChecked) >= 0 ){
+        var tmpl ='<span><input class="checkBox" value="' + value +'" data-row="' + row + '" type="checkbox" checked></span>';
+    }else{
+        var tmpl ='<span><input class="checkBox" value="' + value +'" data-row="' + row + '" type="checkbox"></span>';
+    }
+    return tmpl;
+}
+
+function ExportFromGrid(dataFile){
+    
+    if (markerDataChecked.length > 0){
+        var checkList = markerDataChecked.slice().join(',');
+        //window.open("scripts/subtable.php?dataFile=" + analysis_path+prefix+dataFile + "&ids=" + checkList);
+        $.ajax({
+            type: 'POST',
+            data: {
+                'ids':checkList,
+                'dataFile':analysis_path+prefix+dataFile
+            },
+            url: pluginUrl+"/resources/scripts/subtable.php",
+            success: function(data){
+                var filename = 'subtable.xls';
+        
+                // The actual download
+                var blob = new Blob([data], { type: 'application/csv' });
+                var link = document.createElement('a');
+                link.href = window.URL.createObjectURL(blob);
+                link.download = filename;
+        
+                document.body.appendChild(link);
+        
+                link.click();
+        
+                document.body.removeChild(link);
+    
+            }
+        })
+    }else{
+        ErrorModal("Please make a selection first before exporting")
+    }
+}
+
+$(document).on("click", ".checkBox", function (ev) {
+    $("#MarkerGrid").css('height', '100%');
+    var check = $(this).prop("checked");
+    var id = parseInt($(this).attr("value"));
+    var row = parseInt($(this).data("row"));
+    if (check){
+        if ($.inArray(id,markerDataChecked) < 0) {
+            markerDataChecked.push(id);
+            markerDataChecked_data.push(markerData[row]);
+        }
+    }else{
+        for (var i = 0; i < markerDataChecked.length; i++){
+            if (markerDataChecked[i] === id) {
+                markerDataChecked.splice(i, 1);
+                markerDataChecked_data.splice(i, 1);
+                break;
+            }
+        }
+    }
+    //setCheckAll();
+});
+
+$(document).on("click", "#checkall", function () {
+    var check = $(this).prop("checked");
+    if(check) {
+        for(var row=0; row<markerData.length; row++) {
+            var id = markerData[row]['id'];
+            if($.inArray(id, markerDataChecked) < 0) {
+                markerDataChecked.push(id);
+                markerDataChecked_data.push(markerData[row]);
+                markerDataGrid.updateRow(row);
+           }
+        }
+    } else {
+        for(var row=0; row<markerData.length; row++) {
+            var id = markerData[row]['id'];
+            var i = $.inArray(id, markerDataChecked);
+            if(i < 0) continue;
+            markerDataChecked.splice(i, 1);
+            markerDataChecked_data.splice(i, 1);
+            markerDataGrid.updateRow(row);
+        }
+    }
+    $('#checkall').attr('checked', check);
+});
+
+function ErrorModal(text){
+    $('#errorModal .modal-body').html(text)
+    $('#errorModal').modal()
+}
+</script>
+
+<div class="modal hide fade" id="errorModal">
+    <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+        <h3 style="color:#b94a48"><i class="fa fa-exclamation-triangle"></i> AgriSum Toolkit Error</h3>
+    </div>
+    <div class="modal-body">
+        <p></p>
+    </div>
+</div>
+</body>
+</html>
